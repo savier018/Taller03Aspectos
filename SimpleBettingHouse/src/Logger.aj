@@ -11,11 +11,16 @@ public aspect Logger {
 private SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
  
     pointcut registerUser() : call(* com.bettinghouse.BettingHouse.successfulSignUp(..));
+    pointcut loginUser() : call(* com.bettinghouse.BettingHouse.effectiveLogIn(..));
     pointcut logoutUser() : call(* com.bettinghouse.BettingHouse.effectiveLogOut(..));
 
     after() returning : registerUser() {
         User user = (User)thisJoinPoint.getArgs()[0];
         recordAction("Register.txt", user, "Usuario registrado");
+    }
+    after() returning : loginUser() {
+        User user = (User)thisJoinPoint.getArgs()[0];
+        recordAction("Log.txt", user, "Sesion iniciada");
     }
     after() returning : logoutUser() {
     	User user = (User)thisJoinPoint.getArgs()[0];
