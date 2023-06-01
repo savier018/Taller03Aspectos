@@ -10,23 +10,26 @@ import com.bettinghouse.User;
 public aspect Logger {
 private SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
  
-    pointcut registerUser() : call(* com.bettinghouse.BettingHouse.successfulSignUp(..));
-    pointcut loginUser() : call(* com.bettinghouse.BettingHouse.effectiveLogIn(..));
-    pointcut logoutUser() : call(* com.bettinghouse.BettingHouse.effectiveLogOut(..));
+    pointcut registroUsuario() : call(* com.bettinghouse.BettingHouse.successfulSignUp(..));
+    pointcut loginUserylogoutUser() : (call(* com.bettinghouse.BettingHouse.effectiveLogIn(..)))||(call(* com.bettinghouse.BettingHouse.effectiveLogOut(..)));
 
-    after() returning : registerUser() {
+    after() returning : registroUsuario() {
         User user = (User)thisJoinPoint.getArgs()[0];
-        recordAction("Register.txt", user, "Usuario registrado");
+        grabadoArchivo("Register.txt", user, "Usuario registrado");
+        
     }
-    after() returning : loginUser() {
+
+    after() returning : loginUserylogoutUser() {
         User user = (User)thisJoinPoint.getArgs()[0];
-        recordAction("Log.txt", user, "Sesion iniciada");
+        if (thisJoinPoint.getSignature().getName().equals("effectiveLogIn")) {
+        	grabadoArchivo("Log.txt", user, "Sesion iniciada");	
+
+        }else if (thisJoinPoint.getSignature().getName().equals("effectiveLogout")) {
+        	
+    	grabadoArchivo("Log.txt", user, "Sesion cerrada");	
     }
-    after() returning : logoutUser() {
-    	User user = (User)thisJoinPoint.getArgs()[0];
-    	recordAction("Log.txt", user, "Sesion cerrada");
-    	}
-    private void recordAction(String fileName, User user, String actionType) {
+    }
+    private void grabadoArchivo(String fileName, User user, String actionType) {
     	File file = new File(fileName);
     	String time = sdf.format(Calendar.getInstance().getTime());
 
@@ -43,5 +46,6 @@ private SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy"
     	e.printStackTrace();
     	}
     }
+	}
 
-    }
+    
